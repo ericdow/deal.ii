@@ -1,18 +1,3 @@
-/* ---------------------------------------------------------------------
- *
- * Copyright (C) 1999 - 2019 by the deal.II authors
- *
- * This file is part of the deal.II library.
- *
- * The deal.II library is free software; you can use it, redistribute
- * it, and/or modify it under the terms of the GNU Lesser General
- * Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- * The full text of the license can be found in the file LICENSE.md at
- * the top level directory of deal.II.
- *
- * ---------------------------------------------------------------------
- */
 #include <deal.II/grid/tria.h>
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
@@ -24,14 +9,16 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <chrono>
+typedef std::chrono::high_resolution_clock Clock;
 using namespace dealii;
 
 int main()
 {
   Triangulation<3> triangulation;
-  const int nx = 3;
-  const int ny = 3;
-  const int nz = 3;
+  const int nx = 190;
+  const int ny = 190;
+  const int nz = 150;
 
   // Build the points
   std::vector<Point<3>> vertices((nx+1)*(ny+1)*(nz+1));
@@ -58,13 +45,20 @@ int main()
         cells[n].material_id = 0;
         ++n;
       }
+  auto t1 = Clock::now();
   triangulation.create_triangulation(vertices, cells, SubCellData());
+  auto t2 = Clock::now();
+  std::cout << "Grid created in "
+    << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
+    << " s" << std::endl;
   
   std::ofstream out("3dgrid.eps");
   GridOut       grid_out;
   grid_out.write_eps(triangulation, out);
   
   // Output grid
+  /*
+  t1 = Clock::now();
   DataOut<3> data_out;
   DoFHandler<3> dof_handler(triangulation);
   FE_Q<3> fe(1);
@@ -72,8 +66,15 @@ int main()
   data_out.attach_dof_handler(dof_handler);
   Vector<double> solution(dof_handler.n_dofs()); 
   data_out.add_data_vector(solution, "solution");
-  
   data_out.build_patches();
   std::ofstream output("3dgrid.vtk");
   data_out.write_vtk(output);
+  t2 = Clock::now();
+  std::cout << "Grid written in "
+    << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
+    << " s" << std::endl;
+  
+  data_out.clear();
+  dof_handler.clear();
+  */
 }
