@@ -16,9 +16,9 @@ using namespace dealii;
 int main()
 {
   Triangulation<3> triangulation;
-  const int nx = 190;
-  const int ny = 190;
-  const int nz = 150;
+  const int nx = 100;
+  const int ny = 100;
+  const int nz = 100;
 
   // Build the points
   std::vector<Point<3>> vertices((nx+1)*(ny+1)*(nz+1));
@@ -48,16 +48,15 @@ int main()
   auto t1 = Clock::now();
   triangulation.create_triangulation(vertices, cells, SubCellData());
   auto t2 = Clock::now();
-  std::cout << "Grid created in "
+  std::cout << "Grid with " << nx*ny*nz << " hex cells created in "
     << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
     << " s" << std::endl;
   
-  std::ofstream out("3dgrid.eps");
-  GridOut       grid_out;
-  grid_out.write_eps(triangulation, out);
+  // std::ofstream out("3dgrid.eps");
+  // GridOut       grid_out;
+  // grid_out.write_eps(triangulation, out);
   
   // Output grid
-  /*
   t1 = Clock::now();
   DataOut<3> data_out;
   DoFHandler<3> dof_handler(triangulation);
@@ -67,8 +66,8 @@ int main()
   Vector<double> solution(dof_handler.n_dofs()); 
   data_out.add_data_vector(solution, "solution");
   data_out.build_patches();
-  std::ofstream output("3dgrid.vtk");
-  data_out.write_vtk(output);
+  std::ofstream output("3dgrid.vtu");
+  data_out.write_vtu(output);
   t2 = Clock::now();
   std::cout << "Grid written in "
     << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
@@ -76,5 +75,4 @@ int main()
   
   data_out.clear();
   dof_handler.clear();
-  */
 }
